@@ -1,91 +1,49 @@
-# Waffle Commons - Component Template
-<img src="./images/waffle-commons_logo.png" alt="Logo Waffles Commons" style="width: 25%;" /><br />
-This repository serves as a standardized template for creating new components within the Waffle Commons ecosystem. It provides a consistent structure, tooling configuration (Composer, PHPUnit, Mago, Psalm), and CI/CD pipeline (GitHub Actions) to accelerate development and maintain quality across all packages.
+[![Discord](https://img.shields.io/discord/755288001592033391?logo=discord)](https://discord.gg/eKgywnfXr2)
+[![PHP Version Require](http://poser.pugx.org/waffle-commons/queue/require/php)](https://packagist.org/packages/waffle-commons/queue)
+[![PHP CI](https://github.com/waffle-commons/queue/actions/workflows/main.yml/badge.svg)](https://github.com/waffle-commons/queue/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/waffle-commons/queue/graph/badge.svg)](https://codecov.io/gh/waffle-commons/queue)
+[![Latest Stable Version](http://poser.pugx.org/waffle-commons/queue/v)](https://packagist.org/packages/waffle-commons/queue)
+[![Latest Unstable Version](http://poser.pugx.org/waffle-commons/queue/v/unstable)](https://packagist.org/packages/waffle-commons/queue)
+[![Total Downloads](https://img.shields.io/packagist/dt/waffle-commons/queue.svg)](https://packagist.org/packages/waffle-commons/queue)
+[![Packagist License](https://img.shields.io/packagist/l/waffle-commons/queue)](https://github.com/waffle-commons/queue/blob/main/LICENSE.md)
 
-**Note:** Replace `YOUR_CODECOV_TOKEN_HERE` in the Codecov badge URL if you integrate Codecov. Also, replace `{COMPONENT_NAME}` placeholders in badges after running the configuration script or manually.
+Waffle Queue Component
+==========================
 
-## Purpose
-Using this template ensures that new components adhere to the established standards of the Waffle Commons project regarding:
-- **Directory Structure:** Standard `src/`, `tests/`, etc.
-- **Coding Standards:** Enforced via Mago (formatter, linter, analyzer) with pre-configured rules.
-- **Testing:** Setup for PHPUnit, including configuration (`phpunit.xml`), bootstrap, and coverage reporting.
-- **Static Analysis:** Configured for Psalm and Mago Analyze. 
-- **Automation:** Pre-configured GitHub Actions workflow for CI, mirroring the core framework's quality checks. 
-- **Documentation:** Standard files like this `CONTRIBUTING.md`, `LICENSE.md`, issue templates, etc. 
-- **Composer Setup:** Pre-filled `composer.json` with necessary scripts and development dependencies.
+> **Release:** _unreleased_ &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
+> **Status:** In development for `0.1.0-beta7` — roadmap `[QUEUE-02]` (RFC-015 boundary). The queue contracts land in `waffle-commons/contracts` first (`[QUEUE-01]`), and the `queue:work` worker command lives in `waffle-commons/console`.
 
-## How to Use This Template
-Follow these steps precisely to create a new Waffle Commons component:
+Background job processing for the Waffle framework: a Redis Streams driver with bounded retries and a dead-letter store.
 
-### 1. **Clone the Template:**
-Use this template to create a new `waffle-commons` repository.
+## 📦 Installation
 
-### 2. **Run the Configuration Script:**
-Execute the provided configuration script, passing the PascalCase component name as the first and only argument. This script will automatically replace the placeholder {COMPONENT_NAME} in file contents, filenames, and directory names.
-```shell
-# Example for 'Http' component
-./configure-component.sh Http
+```bash
+composer require waffle-commons/queue
 ```
-- Carefully review the output of the script to ensure all replacements and renames were successful.
 
-### 3. **Review and Finalize `composer.json`:**
-- Open composer.json.
-- Verify the `"name"` is correct (e.g., `waffle-commons/http`). It should have been updated by the script.
-- Crucially, update the `"description"` field to accurately describe your new component's purpose. 
-- Add any specific `require` dependencies needed for this component (e.g., `psr/http-message` for the `http` component).
-- Add specific `require-dev` dependencies if needed beyond the standard template (e.g., `php-mock/php-mock-phpunit` was included, but others might be needed).
-- Verify the PSR-4 namespaces in `autoload` and `autoload-dev` were correctly updated by the script.
+## 🧭 Architectural boundary (`mago guard`)
 
-### 4. **Updates in various files:**
-- Edit this `README.md` file to describe the component.
-- Edit `.github/workflows/main.yml` to activate it.
+`Waffle\Commons\Queue` depends only on `waffle-commons/contracts` (plus `waffle-commons/utils`
+for shared primitives) and the PSR interfaces — never on a sibling component's concrete classes. Every
+interface it implements lands in `waffle-commons/contracts` first.
 
-### 5. **Configure GitHub Repository Settings:**
-- **Branch Protection:** Set up branch protection rules for `main` (require status checks to pass, require PR reviews, etc.).
-- **Secrets:** Add necessary secrets (e.g., `CODECOV_TOKEN`) if applicable for CI workflows.
-- **Labels:** Ensure standard labels (`bug`, `enhancement`, `good first issue`, etc.) are created (consider copying from `waffle-commons/waffle`).
-- **Discussions:** Enable GitHub Discussions if desired for the component.
-- **Issue:** Create customized template for **Bug report** (`.github/ISSUE_TEMPLATE/bug-report.md`) and  **Feature request** (`.github/ISSUE_TEMPLATE/feature-request.md`)
-- **Pull request:** Ensure standard pull requests respect the template (`.github/PULL_REQUEST_TEMPLATE.md`)
+## 🧵 Worker safety
 
-### 6. **Start Developing!**
-You can now start writing your component's code in the `src/` directory and corresponding tests in the `tests/` directory. Remember to follow the established coding standards.
+Services are resident in FrankenPHP worker mode: no mutable state may survive a request. Anything that
+holds per-request state implements `ResettableInterface` directly; `composer igor` must report 0 KO.
 
-## Development Tooling (Composer Scripts)
-This template comes with pre-configured Composer scripts for common development tasks. Run these from the root of your new component's directory:
-- **Install Dependencies:**
-    ```shell
-    composer install
-    ```
-- **Run Tests (PHPUnit):** Generates coverage reports in `var/data/phpunit-coverage/`.
-    ```shell
-    composer tests
-    ```
-- **Run Mago (Format Check, Lint, Analyze):**
-    ```shell
-    composer mago
-    ```
-    - Check Formatting Only: `composer formatter --check`
-    - Apply Formatting: `composer formatter` 
-    - Run Linter: `composer linter`
-    - Run Analyzer: `composer analyzer`
-- **Run Psalm-Taint Analysis:**
-    ```shell
-    vendor/bin/psalm --taint-analysis
-    ```
-- **Check for Dependency Vulnerabilities:**
-    ```shell
-    composer audit
-    ```
-- **Run All CI Checks Locally:** Simulates the checks run in GitHub Actions (without security checks).
-    ```shell
-    composer ci
-    ```
+## 🧪 Testing
 
-## Contributing
-While this repository is a template, contributions to the template itself (improving tooling, structure, CI) are welcome via Pull Requests to the `waffle-commons/component-template` repository.
+```bash
+composer mago    # formatter, linter, analyzer, guard — clean means zero output
+composer tests   # PHPUnit 12.5, line coverage ≥ 95 %
+composer igor    # worker-safety audit
+```
 
-For contributions to components created from this template, please refer to the main and the specific `CONTRIBUTING.md` within that component's repository.
+## 📚 Documentation
 
-## License
-This template, and components created from it by default, are licensed under the MIT License. See the file for details.
+Full documentation tree: [waffle-commons/documentation](https://github.com/waffle-commons/documentation)
+
+## 📄 License
+
+MIT — see [`LICENSE.md`](./LICENSE.md).
