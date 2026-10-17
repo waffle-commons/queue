@@ -24,5 +24,6 @@ Released in lockstep with the Waffle Commons umbrella tag.
 - Integration tests against a real Redis (`WAFFLE_TEST_REDIS_HOST`, default `waffle-redis`), including a worker
   crash in mid-message and the dead-letter store.
 
+- `Health\StreamsHealthCheck` (OPS-01, RFC-023 §3.3) — the `/readyz` probe for the Redis Streams driver: one `XLEN` on the queue's own stream through a leased connection, so it exercises the driver's key and permissions in one read round trip and reports how many messages wait. Critical by default; failures are reported down with the reason, never thrown.
 ### Dependencies
 - `ext-redis` and `psr/clock` are direct requirements.
