@@ -10,8 +10,8 @@
 Waffle Queue Component
 ==========================
 
-> **Release:** _unreleased_ &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
-> **Status:** In development for `0.1.0-beta7` — roadmap `[QUEUE-02]` (RFC-015 boundary). The Redis Streams driver and the dead-letter store are in. The contracts live in `waffle-commons/contracts` (`[QUEUE-01]`), and the `queue:work` worker in `waffle-commons/console`.
+> **Release:** `0.1.0-beta7` &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
+> **Status:** First released in `0.1.0-beta7` — roadmap `[QUEUE-02]` (RFC-015 boundary). The Redis Streams driver and the dead-letter store are in. The contracts live in `waffle-commons/contracts` (`[QUEUE-01]`), and the `queue:work` worker in `waffle-commons/console`.
 
 Background job processing for the Waffle framework: one reference driver on Redis Streams, bounded retries and a
 dead-letter store. It is deliberately small — one driver, one worker, at-least-once delivery — and not a Messenger
