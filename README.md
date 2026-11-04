@@ -34,6 +34,9 @@ clone. It is distinct from beta5's finish-request deferral, which runs after the
   `DtoSerializerInterface` (`waffle-commons/serializer`). It reads one back only into an allowed message class, and
   through the class constructor, so that its hooks validate the payload again. It never calls `unserialize()`: a
   queue is an input channel. An entry it cannot read is set aside and acknowledged, so it never blocks the queue.
+- **`Health\StreamsHealthCheck`** is the `/readyz` probe for the driver (OPS-01): one `XLEN` on the queue's own stream
+  through a leased connection, so it exercises the driver's key and permissions in one read round trip and reports
+  how many messages wait. Critical by default; a failure is reported down with the reason, never thrown.
 
 Connections come from the contracts' `RedisConnectionPoolInterface`, leased per operation and always released. The
 classes keep no state between calls.
@@ -52,7 +55,9 @@ classes keep no state between calls.
 ## 🚀 Usage
 
 The application builds the driver where it registers its console commands (`bin/waffle`), and hands it to the
-`queue:work` worker of `waffle-commons/console`:
+`queue:work` worker of `waffle-commons/console`. The worker resets the container after every message, recycles on a
+message count or a memory ceiling, and drains on SIGTERM and SIGINT (through `pcntl`): it stops taking messages,
+finishes the one in hand, then exits:
 
 ```php
 $handlers = [new SendInvoiceHandler($invoices)];          // MessageHandlerInterface, one per message class
