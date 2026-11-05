@@ -108,7 +108,7 @@ final class RedisFailedMessageStoreTest extends RedisTestCase
 
     public function testTransportFailuresAreQueueExceptions(): void
     {
-        $unreachable = new Redis();
+        $unreachable = self::unreachableRedis();
         $closed = new RedisFailedMessageStore(
             new RedisPool(static fn(): Redis => $unreachable),
             self::codec(),

@@ -250,7 +250,7 @@ final class RedisStreamsQueueTest extends RedisTestCase
 
     public function testARedisThatIsUnreachableIsATransportFailure(): void
     {
-        $unreachable = new Redis();
+        $unreachable = self::unreachableRedis();
         $queue = new RedisStreamsQueue(
             new RedisPool(static fn(): Redis => $unreachable),
             self::codec(),

@@ -58,6 +58,28 @@ abstract class RedisTestCase extends TestCase
         return $redis;
     }
 
+    /**
+     * A client that can never reach a server: its connection to port 1 was
+     * refused. A never-connected `new Redis()` is not enough, because phpredis
+     * then talks to 127.0.0.1:6379, where CI runs a real Redis.
+     */
+    protected static function unreachableRedis(): Redis
+    {
+        $redis = new Redis();
+
+        try {
+            $connected = $redis->connect('127.0.0.1', 1, 0.5);
+        } catch (RedisException) {
+            return $redis;
+        }
+
+        if ($connected) {
+            static::fail('Something listens on 127.0.0.1:1; the unreachable Redis needs a closed port.');
+        }
+
+        return $redis;
+    }
+
     protected static function pool(): RedisPool
     {
         $redis = self::connect();
